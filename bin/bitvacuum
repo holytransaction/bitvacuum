@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'gli'
+require 'yaml'
 
 include GLI::App
 
@@ -7,14 +8,6 @@ program_desc 'BitVacuum is an application that is intended to clean dust (small 
 
 subcommand_option_handling :normal
 arguments :strict
-
-desc 'Verbose. #Currently not implemented'
-switch [:v,:verbose]
-
-desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
-default_value 'all'
-arg_name '[CURRENCY_NAME]'
-flag [:c,:currency]
 
 desc 'Describe scan here'
 arg_name 'Describe arguments to scan here'
@@ -24,13 +17,15 @@ command :scan do |c|
 
   c.desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
   c.default_value 'all'
+  c.arg_name '[CURRENCY NAME]'
   c.flag [:c,:currency]
-  c.action do |global_options,options,args|
 
-    # Your command logic here
-     
-    # If you have any errors, just raise them
-    # raise "that command made no sense"
+  c.desc 'Maximum transaction amount'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['threshold'] # TODO: To investigate why load_configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:t,:threshold]
+
+  c.action do |global_options,options,args|
 
     puts "scan command ran"
   end
@@ -45,11 +40,15 @@ command :run do |c|
 end
 
 pre do |global,command,options,args|
-  # Pre logic here
-  # Return true to proceed; false to abort and not call the
-  # chosen command
-  # Use skips_pre before a command to skip this block
-  # on that command only
+  load_configuration
+  @currencies = @config['currencies']
+  currency = options[:currency].downcase
+
+  unless @currencies.include? currency or currency == 'all'
+    raise "Unknown currency #{currency}"
+  end
+
+  load_currency_configuration currency
   true
 end
 
@@ -63,6 +62,25 @@ on_error do |exception|
   # Error logic here
   # return false to skip default error handling
   true
+end
+
+def load_configuration
+  unless @config
+    @config = YAML::load_file(File.join(__dir__, '../config/application.yml'))
+  end
+  @config
+end
+
+def load_currency_configuration(currency_name)
+  @operational_currencies = []
+  wallets = YAML::load_file(File.join(__dir__, '../config/wallets.yml'))
+  if currency_name == 'all'
+    @currencies.each do |currency|
+      @operational_currencies.push({ name: currency, config: wallets[currency] })
+    end
+  else
+    #@operational_currencies.push({ name: currency_name, wallets['currency_name'] })
+  end
 end
 
 exit run(ARGV)
