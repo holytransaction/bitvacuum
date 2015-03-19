@@ -1,10 +1,23 @@
+GIT
+  remote: git://github.com/nixoid/bitcoin-client.git
+  revision: 958a22764067207f56692d5b19f2fcf06aa4a75b
+  specs:
+    bitcoin-client (0.0.3)
+      rest-client
+
 GEM
   remote: https://rubygems.org/
   specs:
     gli (2.13.0)
+    mime-types (2.4.3)
+    netrc (0.10.3)
+    rest-client (1.7.3)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  bitcoin-client!
   gli

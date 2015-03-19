@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'gli'
 require 'yaml'
+require 'bitcoin'
 
 include GLI::App
 
@@ -26,8 +27,11 @@ command :scan do |c|
   c.flag [:t,:threshold]
 
   c.action do |global_options,options,args|
-
-    puts "scan command ran"
+    @operational_currencies.each do |currency|
+      establish_connection(currency)
+    end
+    puts @connection.balance
+    puts "Scan successful"
   end
 end
 
@@ -79,8 +83,13 @@ def load_currency_configuration(currency_name)
       @operational_currencies.push({ name: currency, config: wallets[currency] })
     end
   else
-    #@operational_currencies.push({ name: currency_name, wallets['currency_name'] })
+    @operational_currencies.push({ name: currency_name, config: wallets[currency_name] })
   end
+end
+
+def establish_connection(currency)
+  @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
+                                    :host => currency[:config]['rpc_host'], :port =>currency[:config]['rpc_port'])
 end
 
 exit run(ARGV)
