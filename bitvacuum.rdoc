@@ -1,0 +1,5 @@
+= bitvacuum
+
+Generate this with
+    bitvacuum rdoc
+After you have described your command line interface
