@@ -1,40 +1,30 @@
 #!/usr/bin/env ruby
 require 'gli'
-begin # XXX: Remove this begin/rescue before distributing your app
-require 'bitvacuum'
-rescue LoadError
-  STDERR.puts "In development, you need to use `bundle exec bin/bitvacuum` to run your app"
-  STDERR.puts "At install-time, RubyGems will make sure lib, etc. are in the load path"
-  STDERR.puts "Feel free to remove this message from bin/bitvacuum now"
-  exit 64
-end
 
 include GLI::App
 
-program_desc 'Describe your application here'
-
-version Bitvacuum::VERSION
+program_desc 'BitVacuum is an application that is intended to clean dust (small transactions) out of the XCOIN wallets'
 
 subcommand_option_handling :normal
 arguments :strict
 
-desc 'Describe some switch here'
-switch [:s,:switch]
+desc 'Verbose. #Currently not implemented'
+switch [:v,:verbose]
 
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
+desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
+default_value 'all'
+arg_name '[CURRENCY_NAME]'
+flag [:c,:currency]
 
 desc 'Describe scan here'
 arg_name 'Describe arguments to scan here'
 command :scan do |c|
-  c.desc 'Describe a switch to scan'
-  c.switch :s
+  c.desc 'Verbose. #Currently not implemented'
+  c.switch [:v,:verbose]
 
-  c.desc 'Describe a flag to scan'
-  c.default_value 'default'
-  c.flag :f
+  c.desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
+  c.default_value 'all'
+  c.flag [:c,:currency]
   c.action do |global_options,options,args|
 
     # Your command logic here
