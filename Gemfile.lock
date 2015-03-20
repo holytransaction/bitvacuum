@@ -1,6 +1,6 @@
 GIT
-  remote: git://github.com/nixoid/bitcoin-client.git
-  revision: 958a22764067207f56692d5b19f2fcf06aa4a75b
+  remote: git://github.com/stormcore/bitcoin-client.git
+  revision: b98c49a221e079457cabac090ceead898ba10c90
   specs:
     bitcoin-client (0.0.3)
       rest-client

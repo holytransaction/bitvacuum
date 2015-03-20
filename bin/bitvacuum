@@ -2,6 +2,7 @@
 require 'gli'
 require 'yaml'
 require 'bitcoin'
+require_relative 'configuration'
 
 include GLI::App
 
@@ -10,8 +11,8 @@ program_desc 'BitVacuum is an application that is intended to clean dust (small 
 subcommand_option_handling :normal
 arguments :strict
 
-desc 'Describe scan here'
-arg_name 'Describe arguments to scan here'
+desc 'Scans for unspent transactions in selected wallet(s) below the threshold'
+arg_name '| Example of usage: bitvacuum scan -c BitCoin -t 0.0001'
 command :scan do |c|
   c.desc 'Verbose. #Currently not implemented'
   c.switch [:v,:verbose]
@@ -22,16 +23,30 @@ command :scan do |c|
   c.flag [:c,:currency]
 
   c.desc 'Maximum transaction amount'
-  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['threshold'] # TODO: To investigate why load_configuration method cannot be invoked here
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['input_value_threshold'] # TODO: To investigate why configuration method cannot be invoked here
   c.arg_name '[VALUE]'
   c.flag [:t,:threshold]
 
   c.action do |global_options,options,args|
-    @operational_currencies.each do |currency|
-      establish_connection(currency)
+    if options[:threshold]
+      threshold = options[:threshold].to_f
+    else
+      threshold = config['input_value_threshold']
     end
-    puts @connection.balance
-    puts "Scan successful"
+
+    puts "Running scan with options: #{options}"
+    puts '====='
+
+    @operational_currencies.each do |currency|
+      puts "Scanning for unspent transactions for currency: #{currency[:name]}"
+      establish_connection(currency)
+      unspent =  scan_for_unspent_transactions(threshold)
+      # TODO: To store results in database
+      puts "Found #{unspent.count} unspent transactions."
+      puts unspent
+      puts 'Scan successful!'
+    end
+
   end
 end
 
@@ -44,8 +59,7 @@ command :run do |c|
 end
 
 pre do |global,command,options,args|
-  load_configuration
-  @currencies = @config['currencies']
+  @currencies = configuration.param['currencies']
   currency = options[:currency].downcase
 
   unless @currencies.include? currency or currency == 'all'
@@ -63,21 +77,20 @@ post do |global,command,options,args|
 end
 
 on_error do |exception|
-  # Error logic here
-  # return false to skip default error handling
-  true
+  puts "Error occured: #{exception.message}"
 end
 
-def load_configuration
-  unless @config
-    @config = YAML::load_file(File.join(__dir__, '../config/application.yml'))
-  end
-  @config
+def scan_for_unspent_transactions(threshold)
+  @connection.listunspent.select { |t| t['amount'] <= threshold }
+end
+
+def configuration
+  Configuration.instance
 end
 
 def load_currency_configuration(currency_name)
   @operational_currencies = []
-  wallets = YAML::load_file(File.join(__dir__, '../config/wallets.yml'))
+  wallets = configuration.wallets
   if currency_name == 'all'
     @currencies.each do |currency|
       @operational_currencies.push({ name: currency, config: wallets[currency] })

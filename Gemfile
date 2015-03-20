@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
 gem 'gli'
-gem 'bitcoin-client', :github => 'nixoid/bitcoin-client'
+gem 'bitcoin-client', :github => 'stormcore/bitcoin-client'
