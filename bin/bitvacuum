@@ -15,19 +15,19 @@ desc 'Scans for unspent transactions in selected wallet(s) below the threshold'
 arg_name '| Example of usage: bitvacuum scan -c BitCoin -t 0.0001'
 command :scan do |c|
   c.desc 'Verbose. #Currently not implemented'
-  c.switch [:v,:verbose]
+  c.switch [:v, :verbose]
 
   c.desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
   c.default_value 'all'
   c.arg_name '[CURRENCY NAME]'
-  c.flag [:c,:currency]
+  c.flag [:c, :currency]
 
   c.desc 'Maximum transaction amount'
   c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['input_value_threshold'] # TODO: To investigate why configuration method cannot be invoked here
   c.arg_name '[VALUE]'
-  c.flag [:t,:threshold]
+  c.flag [:t, :threshold]
 
-  c.action do |global_options,options,args|
+  c.action do |global_options, options, args|
     if options[:threshold]
       threshold = options[:threshold].to_f
     else
@@ -40,7 +40,7 @@ command :scan do |c|
     @operational_currencies.each do |currency|
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
       establish_connection(currency)
-      unspent =  scan_for_unspent_transactions(threshold)
+      unspent = scan_for_unspent_transactions(threshold)
       # TODO: To store results in database
       puts "Found #{unspent.count} unspent transactions."
       puts unspent
@@ -50,15 +50,70 @@ command :scan do |c|
   end
 end
 
-desc 'Describe run here'
-arg_name 'Describe arguments to run here'
+desc 'Merge small inputs into bigger transactions'
 command :run do |c|
-  c.action do |global_options,options,args|
-    puts "run command ran"
+  c.desc 'Specify currency (Bitcoin, Litecoin, Dogecoin, Darkcoin etc)'
+  c.default_value 'all'
+  c.arg_name '[CURRENCY NAME]'
+  c.flag [:c, :currency]
+
+  c.desc 'Maximum transaction amount'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['input_value_threshold'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:t, :threshold]
+
+  c.desc 'Number of transactions to send'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['transactions_to_send'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:n, :transactions_to_send]
+
+  c.desc 'Maximum transaction fee'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['transaction_fee'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:f, :fee]
+
+  c.desc 'Maximum transaction size in bytes'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['transaction_size'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:s, :size]
+
+  c.desc 'Minimum inputs to start cleaning'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['inputs_to_start'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:i, :inputs]
+
+  c.action do |global_options, options, args|
+    if options[:threshold]
+      threshold = options[:threshold].to_f
+    else
+      threshold = config['input_value_threshold']
+    end
+
+    puts "Running scan with options: #{options}"
+    puts '====='
+
+    @operational_currencies.each do |currency|
+      puts "Scanning for unspent transactions for currency: #{currency[:name]}"
+      establish_connection(currency)
+      unspent = scan_for_unspent_transactions(threshold)
+      puts "Found #{unspent.count} unspent transactions."
+      operational_inputs = unspent
+      transaction_buffer = []
+      configuration.param['transactions_to_send'].times do
+        unless operational_inputs.nil?
+          transaction_buffer = accumulate_inputs(operational_inputs)
+        else
+          puts 'Nothing to clean!'
+        end
+        calculate_transaction_size(transaction_buffer)
+      end
+
+    end
+    # TODO: To store results in database
   end
 end
 
-pre do |global,command,options,args|
+pre do |global, command, options, args|
   @currencies = configuration.param['currencies']
   currency = options[:currency].downcase
 
@@ -70,7 +125,7 @@ pre do |global,command,options,args|
   true
 end
 
-post do |global,command,options,args|
+post do |global, command, options, args|
   # Post logic here
   # Use skips_post before a command to skip this
   # block on that command only
@@ -81,11 +136,43 @@ on_error do |exception|
 end
 
 def scan_for_unspent_transactions(threshold)
-  @connection.listunspent.select { |t| t['amount'] <= threshold }
+  unspent = @connection.listunspent.select { |t| t['amount'] <= threshold }
+  unspent.sort_by { |t| t['amount'] }
+end
+
+def accumulate_inputs(inputs)
+  # TODO: To implement checks and rearranging of inputs
+  buffer = []
+  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] && calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] do
+    buffer.push(inputs.pop)
+    puts 'Now buffer is:'
+    puts buffer
+  end
+  buffer
+end
+
+def calculate_transaction_size(inputs)
+  if inputs.empty?
+    0
+  else
+    size = inputs.count * 180 + 34 + inputs.count
+    puts "Transaction size is: #{size}"
+    size
+  end
 end
 
 def configuration
   Configuration.instance
+end
+
+def calculate_value_of_inputs(inputs)
+  if inputs.empty?
+    0
+  else
+    value = inputs.map { |i| i['amount'] }.reduce :+
+    puts "Total value of inputs is: #{value}"
+    value
+  end
 end
 
 def load_currency_configuration(currency_name)
@@ -93,16 +180,16 @@ def load_currency_configuration(currency_name)
   wallets = configuration.wallets
   if currency_name == 'all'
     @currencies.each do |currency|
-      @operational_currencies.push({ name: currency, config: wallets[currency] })
+      @operational_currencies.push({name: currency, config: wallets[currency]})
     end
   else
-    @operational_currencies.push({ name: currency_name, config: wallets[currency_name] })
+    @operational_currencies.push({name: currency_name, config: wallets[currency_name]})
   end
 end
 
 def establish_connection(currency)
   @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
-                                    :host => currency[:config]['rpc_host'], :port =>currency[:config]['rpc_port'])
+                                    :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
 end
 
 exit run(ARGV)

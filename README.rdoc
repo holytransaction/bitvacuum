@@ -1,6 +1,9 @@
 = bitvacuum
 
-Describe your project here
+For more information:
+bundle exec bin/bitvacuum --help
+bundle exec bin/bitvacuum scan --help
+bundle exec bin/bitvacuum run --help
 
 :include:bitvacuum.rdoc
 

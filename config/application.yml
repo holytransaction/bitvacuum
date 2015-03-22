@@ -1,3 +1,7 @@
 currencies: [darkcoin]
 input_value_threshold: 0.0001
-inputs_to_start: 5
+inputs_to_start: 10
+minimum_transaction_value: 0.01
+transaction_fee: 0.0001
+transaction_size: 1000 # Size is calculated: Number_of_inputs * 180 + Number_of_out * 34 + 10 + Number_of_inputs
+transactions_to_send: 1 # 9999
