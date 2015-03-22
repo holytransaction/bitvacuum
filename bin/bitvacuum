@@ -96,7 +96,7 @@ command :run do |c|
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
       establish_connection(currency)
       unspent = scan_for_unspent_transactions(threshold)
-      puts "Found #{unspent.count} unspent transactions."
+      puts "Found #{unspent.count} unspent inputs."
       operational_inputs = unspent
       transaction_buffer = []
       configuration.param['transactions_to_send'].times do
@@ -105,7 +105,6 @@ command :run do |c|
         else
           puts 'Nothing to clean!'
         end
-        calculate_transaction_size(transaction_buffer)
       end
 
     end
@@ -141,13 +140,26 @@ def scan_for_unspent_transactions(threshold)
 end
 
 def accumulate_inputs(inputs)
-  # TODO: To implement checks and rearranging of inputs
   buffer = []
-  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] && calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] do
-    buffer.push(inputs.pop)
-    puts 'Now buffer is:'
-    puts buffer
+  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] && calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] || calculate_transaction_size(buffer) > configuration.param['transaction_size'] do
+    if inputs.empty?
+      raise 'No more inputs to process, transaction value is still not optimal' #TODO: Loop exit instead of raise
+    end
+    buffer = buffer.push(inputs.slice!(-1))
+    if calculate_transaction_size(buffer) > configuration.param['transaction_size']
+      if inputs.count < 2
+        raise 'Inputs count is less than 2' #TODO: Loop exit instead of raise
+      end
+      puts 'Warning: Transaction size limit is exceeded, trying to change last two inputs to more valuable one !'
+      inputs = inputs.push(buffer.slice!(-1, 2)).flatten
+      buffer = buffer.slice!(-1, 2)
+      buffer = buffer.push(inputs.slice!(0))
+    end
+    puts "Now transaction buffer is: #{buffer}"
+    printf 'Transaction buffer value is: %f; ',calculate_value_of_inputs(buffer)
+    puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
   end
+
   buffer
 end
 
@@ -155,9 +167,7 @@ def calculate_transaction_size(inputs)
   if inputs.empty?
     0
   else
-    size = inputs.count * 180 + 34 + inputs.count
-    puts "Transaction size is: #{size}"
-    size
+    inputs.count * 180 + 34 + inputs.count
   end
 end
 
@@ -170,7 +180,6 @@ def calculate_value_of_inputs(inputs)
     0
   else
     value = inputs.map { |i| i['amount'] }.reduce :+
-    puts "Total value of inputs is: #{value}"
     value
   end
 end
