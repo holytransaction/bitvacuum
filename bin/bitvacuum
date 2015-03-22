@@ -102,8 +102,18 @@ command :run do |c|
       configuration.param['transactions_to_send'].times do
         unless operational_inputs.nil?
           transaction_buffer = accumulate_inputs(operational_inputs)
+          if transaction_buffer.count > 1 &&
+              calculate_transaction_size(transaction_buffer) <= configuration.param['transaction_size'] &&
+              calculate_value_of_inputs(transaction_buffer) >= configuration.param['minimum_transaction_value']
+
+                puts 'Create, sign and send transaction'# TODO: Create, sign and send transaction
+          else
+            puts 'No fulfilling transactions created'
+            break
+          end
         else
           puts 'Nothing to clean!'
+          break
         end
       end
 
@@ -141,25 +151,33 @@ end
 
 def accumulate_inputs(inputs)
   buffer = []
-  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] && calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] || calculate_transaction_size(buffer) > configuration.param['transaction_size'] do
+  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] &&
+      calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] ||
+      calculate_transaction_size(buffer) > configuration.param['transaction_size'] do
+
     if inputs.empty?
-      raise 'No more inputs to process, transaction value is still not optimal' #TODO: Loop exit instead of raise
+      puts 'No more inputs to process, transaction value is still not optimal'
+      break
     end
+
     buffer = buffer.push(inputs.slice!(-1))
     if calculate_transaction_size(buffer) > configuration.param['transaction_size']
+
       if inputs.count < 2
-        raise 'Inputs count is less than 2' #TODO: Loop exit instead of raise
+        puts 'Inputs count is less than 2'
+        break
       end
+
       puts 'Warning: Transaction size limit is exceeded, trying to change last two inputs to more valuable one !'
       inputs = inputs.push(buffer.slice!(-1, 2)).flatten
       buffer = buffer.slice!(-1, 2)
       buffer = buffer.push(inputs.slice!(0))
     end
-    puts "Now transaction buffer is: #{buffer}"
+
+    # puts "Now transaction buffer is: #{buffer}"
     printf 'Transaction buffer value is: %f; ',calculate_value_of_inputs(buffer)
     puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
   end
-
   buffer
 end
 

@@ -1,4 +1,4 @@
-require 'test/unit'
+require 'rspec'
 
 # Add test libraries you want to use here, e.g. mocha
 
