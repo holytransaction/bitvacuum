@@ -1,5 +1,5 @@
 currencies: [darkcoin]
-input_value_threshold: 0.003
+input_value_threshold: 0.01
 inputs_to_start: 10
 minimum_transaction_value: 0.01
 transaction_fee: 0.0001
