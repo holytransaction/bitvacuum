@@ -58,8 +58,12 @@ class XCoinOperator
     else
       threshold = configuration.param['input_value_threshold']
     end
-    unspent = @connection.listunspent.select { |t| t['amount'] <= threshold }
-    unspent.sort_by { |t| t['amount'] }
+    unspent = @connection.listunspent
+    filter_unspent_transactions(unspent,threshold)
+  end
+
+  def filter_unspent_transactions(inputs, threshold)
+    inputs.select { |t| t['amount'] <= threshold }.sort_by { |t| t['amount'] }
   end
 
   def accumulate_inputs(inputs)
@@ -70,7 +74,7 @@ class XCoinOperator
 
       if inputs.empty?
         puts 'No more inputs to process, transaction value is still not optimal'
-        break
+        return []
       end
 
       buffer = buffer.push(inputs.slice!(-1))
@@ -78,7 +82,7 @@ class XCoinOperator
 
         if inputs.count < 2
           puts 'Inputs count is less than 2'
-          break
+          return []
         end
 
         puts 'Warning: Transaction size limit is exceeded, trying to change last two inputs to more valuable one !'
