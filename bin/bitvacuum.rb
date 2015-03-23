@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 require 'gli'
 require 'yaml'
-require 'bitcoin'
 require_relative 'x_coin_operator'
-require_relative 'configuration'
 
 include GLI::App
 

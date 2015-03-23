@@ -1,4 +1,6 @@
 require 'singleton'
+require 'bitcoin'
+require_relative 'configuration'
 
 class XCoinOperator
   include Singleton
@@ -32,7 +34,7 @@ class XCoinOperator
     currency_name = currency_name.downcase
     @operational_currencies = []
     wallets = configuration.wallets
-    @currencies = operator.configuration.param['currencies']
+    @currencies = configuration.param['currencies']
     unless @currencies.include? currency_name or currency_name == 'all'
       raise "Unknown currency #{currency_name}"
     end
@@ -41,7 +43,7 @@ class XCoinOperator
         @operational_currencies.push({name: currency, config: wallets[currency]})
       end
     else
-      @operational_currencies.push({name: currency_name, config: wallets[currency_name]})
+      @operational_currencies.push({ name: currency_name, config: wallets[currency_name] })
     end
   end
 
@@ -62,9 +64,9 @@ class XCoinOperator
 
   def accumulate_inputs(inputs)
     buffer = []
-    while calculate_transaction_size(buffer) <= operator.configuration.param['transaction_size'] &&
-        calculate_value_of_inputs(buffer) <= operator.configuration.param['minimum_transaction_value'] ||
-        calculate_transaction_size(buffer) > operator.configuration.param['transaction_size'] do
+    while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] &&
+        calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] ||
+        calculate_transaction_size(buffer) > configuration.param['transaction_size'] do
 
       if inputs.empty?
         puts 'No more inputs to process, transaction value is still not optimal'
@@ -72,7 +74,7 @@ class XCoinOperator
       end
 
       buffer = buffer.push(inputs.slice!(-1))
-      if calculate_transaction_size(buffer) > operator.configuration.param['transaction_size']
+      if calculate_transaction_size(buffer) > configuration.param['transaction_size']
 
         if inputs.count < 2
           puts 'Inputs count is less than 2'
