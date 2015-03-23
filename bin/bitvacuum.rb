@@ -2,6 +2,7 @@
 require 'gli'
 require 'yaml'
 require 'bitcoin'
+require_relative 'x_coin_operator'
 require_relative 'configuration'
 
 include GLI::App
@@ -28,20 +29,15 @@ command :scan do |c|
   c.flag [:t, :threshold]
 
   c.action do |global_options, options, args|
-    if options[:threshold]
-      threshold = options[:threshold].to_f
-    else
-      threshold = config['input_value_threshold']
-    end
 
     puts "Running scan with options: #{options}"
     puts '====='
 
-    @operational_currencies.each do |currency|
+    operator.operational_currencies.each do |currency|
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
-      establish_connection(currency)
-      unspent = scan_for_unspent_transactions(threshold)
-      # TODO: To store results in database
+      operator.establish_connection(currency)
+      unspent = operator.scan_for_unspent_transactions(options[:threshold])
+      # TODO: To store results in database. # of inputs, date total amount. Create new table table bitvacuum_run in cryptoserver DB (test and dev)
       puts "Found #{unspent.count} unspent transactions."
       puts unspent
       puts 'Scan successful!'
@@ -92,21 +88,22 @@ command :run do |c|
     puts "Running scan with options: #{options}"
     puts '====='
 
-    @operational_currencies.each do |currency|
+    operator.operational_currencies.each do |currency|
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
-      establish_connection(currency)
-      unspent = scan_for_unspent_transactions(threshold)
+      operator.establish_connection(currency)
+      unspent = operator.scan_for_unspent_transactions(threshold)
       puts "Found #{unspent.count} unspent inputs."
       operational_inputs = unspent
       transaction_buffer = []
-      configuration.param['transactions_to_send'].times do
+      operator.configuration.param['transactions_to_send'].times do
         unless operational_inputs.nil?
-          transaction_buffer = accumulate_inputs(operational_inputs)
+          transaction_buffer = operator.accumulate_inputs(operational_inputs)
           if transaction_buffer.count > 1 &&
-              calculate_transaction_size(transaction_buffer) <= configuration.param['transaction_size'] &&
-              calculate_value_of_inputs(transaction_buffer) >= configuration.param['minimum_transaction_value']
+              operator.calculate_transaction_size(transaction_buffer) <= operator.configuration.param['transaction_size'] &&
+              operator.calculate_value_of_inputs(transaction_buffer) >= operator.configuration.param['minimum_transaction_value']
 
-                puts 'Create, sign and send transaction'# TODO: Create, sign and send transaction
+            puts 'Create, sign and send transaction' # TODO: Lock inputs. Create, sign and send transaction
+            # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
           else
             puts 'No fulfilling transactions created'
             break
@@ -118,19 +115,11 @@ command :run do |c|
       end
 
     end
-    # TODO: To store results in database
   end
 end
 
 pre do |global, command, options, args|
-  @currencies = configuration.param['currencies']
-  currency = options[:currency].downcase
-
-  unless @currencies.include? currency or currency == 'all'
-    raise "Unknown currency #{currency}"
-  end
-
-  load_currency_configuration currency
+  operator.load_currency_configuration options[:currency]
   true
 end
 
@@ -144,79 +133,9 @@ on_error do |exception|
   puts "Error occured: #{exception.message}"
 end
 
-def scan_for_unspent_transactions(threshold)
-  unspent = @connection.listunspent.select { |t| t['amount'] <= threshold }
-  unspent.sort_by { |t| t['amount'] }
-end
-
-def accumulate_inputs(inputs)
-  buffer = []
-  while calculate_transaction_size(buffer) <= configuration.param['transaction_size'] &&
-      calculate_value_of_inputs(buffer) <= configuration.param['minimum_transaction_value'] ||
-      calculate_transaction_size(buffer) > configuration.param['transaction_size'] do
-
-    if inputs.empty?
-      puts 'No more inputs to process, transaction value is still not optimal'
-      break
-    end
-
-    buffer = buffer.push(inputs.slice!(-1))
-    if calculate_transaction_size(buffer) > configuration.param['transaction_size']
-
-      if inputs.count < 2
-        puts 'Inputs count is less than 2'
-        break
-      end
-
-      puts 'Warning: Transaction size limit is exceeded, trying to change last two inputs to more valuable one !'
-      inputs = inputs.push(buffer.slice!(-1, 2)).flatten
-      buffer = buffer.slice!(-1, 2)
-      buffer = buffer.push(inputs.slice!(0))
-    end
-
-    # puts "Now transaction buffer is: #{buffer}"
-    printf 'Transaction buffer value is: %f; ',calculate_value_of_inputs(buffer)
-    puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
-  end
-  buffer
-end
-
-def calculate_transaction_size(inputs)
-  if inputs.empty?
-    0
-  else
-    inputs.count * 180 + 34 + inputs.count
-  end
-end
-
-def configuration
-  Configuration.instance
-end
-
-def calculate_value_of_inputs(inputs)
-  if inputs.empty?
-    0
-  else
-    value = inputs.map { |i| i['amount'] }.reduce :+
-    value
-  end
-end
-
-def load_currency_configuration(currency_name)
-  @operational_currencies = []
-  wallets = configuration.wallets
-  if currency_name == 'all'
-    @currencies.each do |currency|
-      @operational_currencies.push({name: currency, config: wallets[currency]})
-    end
-  else
-    @operational_currencies.push({name: currency_name, config: wallets[currency_name]})
-  end
-end
-
-def establish_connection(currency)
-  @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
-                                    :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
+def operator
+  XCoinOperator.instance
 end
 
 exit run(ARGV)
+
