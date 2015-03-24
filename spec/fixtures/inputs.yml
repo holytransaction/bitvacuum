@@ -255,3 +255,23 @@ inputs_not_fulfil: [
                 "confirmations" : 3311
             }
         ]
+inputs_no_dust: [
+            {
+                "txid" : "12c1b7334b59e6973a2bdb433dbd99beed357191f343f18fecd64eb8608a332e",
+                "vout" : 0,
+                "address" : "XpxkAuDtEhbjekWJLqhKmU2Xn4hvsA1fzL",
+                "account" : "",
+                "scriptPubKey" : "76a9149c93b0ca995796bb176d918cb268834a10b179d088ac",
+                "amount" : 2.00001000,
+                "confirmations" : 3312
+            },
+            {
+                "txid" : "14274182f2d927847106f67a5eb412d0f5170e21c5e0687b479707b942ccf9d9",
+                "vout" : 1,
+                "address" : "Xg2V3eZfW7RGQ29xQS32qHpfuRNRLRgrzu",
+                "account" : "",
+                "scriptPubKey" : "76a9143a8f98bcce6ae64662c08fd953c382629e7258b888ac",
+                "amount" : 1.00001000,
+                "confirmations" : 3313
+            }
+        ]

@@ -8,6 +8,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    awesome_print (1.6.1)
     builder (3.2.2)
     cucumber (1.3.19)
       builder (>= 2.1.2)
@@ -19,10 +20,14 @@ GEM
     gherkin (2.12.2)
       multi_json (~> 1.3)
     gli (2.13.0)
+    metaclass (0.0.4)
     mime-types (2.4.3)
+    mocha (1.1.0)
+      metaclass (~> 0.0.1)
     multi_json (1.11.0)
     multi_test (0.1.2)
     netrc (0.10.3)
+    rake (10.3.2)
     rest-client (1.7.3)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
@@ -39,7 +44,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   bitcoin-client!
   cucumber
   gli
+  mocha
+  rake
   rspec

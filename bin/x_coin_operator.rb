@@ -1,6 +1,7 @@
 require 'singleton'
 require 'bitcoin'
 require_relative 'configuration'
+require 'awesome_print'
 
 class XCoinOperator
   include Singleton
@@ -93,7 +94,7 @@ class XCoinOperator
         buffer = buffer.drop(2)
         buffer.push(inputs.pop)
       else
-        buffer = buffer.push(inputs.take(1).first)
+        buffer.push(inputs.take(1).first)
       end
       # puts "Now transaction buffer is: #{buffer}"
       printf 'Transaction buffer value is: %f; ', calculate_value_of_inputs(buffer)
