@@ -21,7 +21,11 @@ class XCoinOperator
     if inputs.empty?
       0
     else
-      value = inputs.map { |i| i['amount'] }.reduce :+
+      if inputs.count == 1
+        value = inputs.first['amount']
+      else
+        value = inputs.map { |i| i['amount'] }.reduce :+
+      end
       value
     end
   end
@@ -63,7 +67,7 @@ class XCoinOperator
   end
 
   def filter_unspent_transactions(inputs, threshold)
-    inputs.select { |t| t['amount'] <= threshold }.sort_by { |t| t['amount'] }
+    inputs.select { |t| t['amount'] <= threshold }.sort_by! { |t| t['amount'] }
   end
 
   def accumulate_inputs(inputs)
@@ -76,8 +80,8 @@ class XCoinOperator
         puts 'No more inputs to process, transaction value is still not optimal'
         return []
       end
-
-      buffer = buffer.push(inputs.slice!(-1))
+      buffer.sort_by! { |t| t['amount'] }
+      inputs.sort_by! { |t| t['amount'] }
       if calculate_transaction_size(buffer) > configuration.param['transaction_size']
 
         if inputs.count < 2
@@ -85,16 +89,17 @@ class XCoinOperator
           return []
         end
 
-        puts 'Warning: Transaction size limit is exceeded, trying to change last two inputs to more valuable one !'
-        inputs = inputs.push(buffer.slice!(-1, 2)).flatten
-        buffer = buffer.slice!(-1, 2)
-        buffer = buffer.push(inputs.slice!(0))
+        puts 'Warning: Transaction size limit is exceeded, trying to change two lesser inputs to more valuable one!'
+        buffer = buffer.drop(2)
+        buffer.push(inputs.pop)
+      else
+        buffer = buffer.push(inputs.take(1).first)
       end
-
       # puts "Now transaction buffer is: #{buffer}"
       printf 'Transaction buffer value is: %f; ', calculate_value_of_inputs(buffer)
       puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
     end
+    puts "Optimal transaction is accumulated. Total number of inputs: #{buffer.count}. Returning inputs buffer"
     buffer
   end
 end

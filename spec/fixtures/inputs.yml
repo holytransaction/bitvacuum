@@ -5,7 +5,7 @@ inputs_fulfil: [
                 "address" : "XpxkAuDtEhbjekWJLqhKmU2Xn4hvsA1fzL",
                 "account" : "",
                 "scriptPubKey" : "76a9149c93b0ca995796bb176d918cb268834a10b179d088ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00022001,
                 "confirmations" : 3312
             },
             {
@@ -14,7 +14,7 @@ inputs_fulfil: [
                 "address" : "Xg2V3eZfW7RGQ29xQS32qHpfuRNRLRgrzu",
                 "account" : "",
                 "scriptPubKey" : "76a9143a8f98bcce6ae64662c08fd953c382629e7258b888ac",
-                "amount" : 0.00081000,
+                "amount" : 0.0087000,
                 "confirmations" : 3313
             },
             {
@@ -23,7 +23,7 @@ inputs_fulfil: [
                 "address" : "Xsepg34nzLLAd8KAChhJ9HUXtaxWB2gE4a",
                 "account" : "",
                 "scriptPubKey" : "76a914ba1856c7e4be4ae07024e3deecec91081ea6911788ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00021000,
                 "confirmations" : 3313
             },
             {
@@ -41,7 +41,7 @@ inputs_fulfil: [
                 "address" : "Xh9V5qRDmLufJaoqRJncYB7HrXHCVaE9au",
                 "account" : "",
                 "scriptPubKey" : "76a91446daaa666e7114983bbec24c4395ba847b27a5ab88ac",
-                "amount" : 0.00100000,
+                "amount" : 0.00100002,
                 "confirmations" : 2709
             },
             {
@@ -59,7 +59,7 @@ inputs_fulfil: [
                 "address" : "XauBVbgScJJxZpLYe8ev7TK6YuxqEteACX",
                 "account" : "",
                 "scriptPubKey" : "76a91402556760eb9f2b1665a3faa2f1de5c81a4ab581c88ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001003,
                 "confirmations" : 3288
             },
             {
@@ -68,7 +68,7 @@ inputs_fulfil: [
                 "address" : "XkmZtc3aK3dXEwNUiS2PcRp51iEFeCLYDW",
                 "account" : "",
                 "scriptPubKey" : "76a9146e96079e1d4813f970fa44243e0c095a5491c8d588ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001004,
                 "confirmations" : 3313
             },
             {
@@ -77,7 +77,7 @@ inputs_fulfil: [
                 "address" : "XoLbiJoTa8qAcgDiaNmUfgiQzfdYZ9VZNM",
                 "account" : "",
                 "scriptPubKey" : "76a9148ac58785341164fbcc9625ef1c5bc22ee1df58a888ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001005,
                 "confirmations" : 3288
             },
             {
@@ -86,7 +86,7 @@ inputs_fulfil: [
                 "address" : "XiUEQXT946VYiTEWBnwjpahF78GaP5egZg",
                 "account" : "",
                 "scriptPubKey" : "76a914555e713b44f2789bbf5d3e080dbb80b601907a7088ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001006,
                 "confirmations" : 3312
             },
             {
@@ -95,7 +95,7 @@ inputs_fulfil: [
                 "address" : "Xrg3Whn8SvwuubRNiqoUieuWQWHZ4eRJjU",
                 "account" : "",
                 "scriptPubKey" : "76a914af5b58c1714f4e802eca8d0fbf8f44a1942bac7188ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001007,
                 "confirmations" : 3311
             },
             {
@@ -104,7 +104,7 @@ inputs_fulfil: [
                 "address" : "XpLN21pTmUgZtgcWrRAhJSsu5jbYNMDZ3K",
                 "account" : "",
                 "scriptPubKey" : "76a91495b239308fb05e68bebb31f4c51211bf1e6c6b5288ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001008,
                 "confirmations" : 3311
             },
             {
@@ -113,7 +113,7 @@ inputs_fulfil: [
                 "address" : "XfKpxcuL9L8N2kpTFs3hgxMgC3Rd3mMuND",
                 "account" : "",
                 "scriptPubKey" : "76a91432df2a3c4fe8e95cec7c75606db60723fd82ea2288ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001009,
                 "confirmations" : 3312
             },
             {
@@ -122,7 +122,7 @@ inputs_fulfil: [
                 "address" : "Xgu1CL9fhdp7nxTWjW1PLbDPUfsGF8T3EE",
                 "account" : "",
                 "scriptPubKey" : "76a914441d8ffad99b08f57a592e46f73dfe75c8f1fb6588ac",
-                "amount" : 0.00001000,
+                "amount" : 0.00001010,
                 "confirmations" : 3311
             }
         ]

@@ -25,11 +25,20 @@ describe 'BitVacuum' do
   end
   it 'calculates total amount of multiple inputs' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
-    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_not_fulfil'], 0.01)
     total_amount = XCoinOperator.instance.calculate_value_of_inputs(unspent)
-    expect(total_amount).to be(0.00191)
+    expect(total_amount).to be(0.0011200000000000001)
   end
-  it 'accumulates dust inputs into valid free from fees transaction'
+  it 'accumulates dust inputs into valid free from fees transaction' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    accumulated = XCoinOperator.instance.accumulate_inputs(unspent)
+    expect(XCoinOperator.instance.calculate_transaction_size(accumulated)).
+        to be(939)
+
+    expect(XCoinOperator.instance.calculate_value_of_inputs(accumulated)).
+        to be(0.01014006)
+  end
   it 'returns error if cannot collect enough dust inputs into the fulfilling transaction'
   it 'can spot that there is no dust in the wallet'
   it 'can spot that accumulated dust inputs are not eligible for sending'
