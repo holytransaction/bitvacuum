@@ -35,7 +35,6 @@ command :scan do |c|
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
       operator.establish_connection(currency)
       unspent = operator.scan_for_unspent_transactions(options[:threshold])
-      # TODO: To store results in database. # of inputs, date total amount. Create new table table bitvacuum_run in cryptoserver DB (test and dev)
       puts "Found #{unspent.count} unspent transactions."
       puts unspent
       puts 'Scan successful!'
@@ -83,36 +82,10 @@ command :run do |c|
       threshold = config['input_value_threshold']
     end
 
-    puts "Running scan with options: #{options}"
+    puts "Running 'run' with options: #{options}"
     puts '====='
 
-    operator.operational_currencies.each do |currency|
-      puts "Scanning for unspent transactions for currency: #{currency[:name]}"
-      operator.establish_connection(currency)
-      unspent = operator.scan_for_unspent_transactions(threshold)
-      puts "Found #{unspent.count} unspent inputs."
-      operational_inputs = unspent
-      transaction_buffer = []
-      operator.configuration.param['transactions_to_send'].times do
-        unless operational_inputs.nil?
-          transaction_buffer = operator.accumulate_inputs(operational_inputs)
-          if transaction_buffer.count > 1 &&
-              operator.calculate_transaction_size(transaction_buffer) <= operator.configuration.param['transaction_size'] &&
-              operator.calculate_value_of_inputs(transaction_buffer) >= operator.configuration.param['minimum_transaction_value']
-
-            puts 'Create, sign and send transaction' # TODO: Lock inputs. Create, sign and send transaction
-            # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
-          else
-            puts 'No fulfilling transactions created'
-            break
-          end
-        else
-          puts 'Nothing to clean!'
-          break
-        end
-      end
-
-    end
+    operator.run_accumulation(threshold)
   end
 end
 

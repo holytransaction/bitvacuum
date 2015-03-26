@@ -53,10 +53,10 @@ describe 'BitVacuum' do
     expect(unspent.empty?).
         to be(true)
   end
-  it 'can spot that accumulated dust inputs are not eligible for sending'
-  it 'locks inputs before creating raw transaction'
-  it 'unlocks inputs before signing transaction' # Do we need to unlock?
-  it 'creates new address before sending'
-  it 'validates transaction before sending'
-  # it 'sends accumulated transaction to the net'
+  it 'can spot that accumulated dust inputs are not eligible for sending' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    locked = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_locked'], 0.01)
+    expect(XCoinOperator.instance.inputs_are_locked?(unspent,locked)).to be(true)
+  end
 end

@@ -53,8 +53,12 @@ class XCoinOperator
   end
 
   def establish_connection(currency)
-    @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
-                                      :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
+    if @connection.nil?
+      @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
+                                        :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
+    else
+      @connection
+    end
   end
 
   def scan_for_unspent_transactions(threshold)
@@ -65,6 +69,7 @@ class XCoinOperator
     end
     unspent = @connection.listunspent
     filter_unspent_transactions(unspent,threshold)
+    # TODO: To store results in database. # of inputs, date total amount. Create new table table bitvacuum_run in cryptoserver DB (test and dev)
   end
 
   def filter_unspent_transactions(inputs, threshold)
@@ -102,5 +107,50 @@ class XCoinOperator
     end
     puts "Optimal transaction is accumulated. Total number of inputs: #{buffer.count}. Returning inputs buffer"
     buffer
+  end
+
+  def get_list_of_locked_inputs
+    @connection.listlockunspent
+  end
+
+  def inputs_are_locked?(inputs, locked_list)
+    if inputs & locked_list
+      true
+    else
+      false
+    end
+  end
+
+  def run_accumulation(threshold)
+    operator.operational_currencies.each do |currency|
+      puts "Scanning for unspent transactions for currency: #{currency[:name]}"
+      establish_connection(currency)
+      unspent = scan_for_unspent_transactions(threshold)
+      puts "Found #{unspent.count} unspent inputs."
+      operational_inputs = unspent
+      transaction_buffer = []
+      configuration.param['transactions_to_send'].times do
+        unless operational_inputs.nil?
+          transaction_buffer = accumulate_inputs(operational_inputs)
+          if transaction_buffer.count > 1 && transaction_buffer & scan_for_unspent_transactions(threshold)
+            # TODO: Lock inputs
+            if inputs_are_locked?(transaction_buffer, get_list_of_locked_inputs)
+              puts 'Create, sign and send transaction' # TODO: Create, sign and send transaction
+              # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
+            else
+              # TODO: Unlock inputs
+              redo
+            end
+          else
+            puts 'No fulfilling transactions created'
+            break
+          end
+        else
+          puts 'Nothing to clean!'
+          break
+        end
+      end
+
+    end
   end
 end

@@ -275,3 +275,24 @@ inputs_no_dust: [
                 "confirmations" : 3313
             }
         ]
+
+inputs_locked: [
+            {
+                "txid" : "14274182f2d927847106f67a5eb412d0f5170e21c5e0687b479707b942ccf9d9",
+                "vout" : 1,
+                "address" : "Xg2V3eZfW7RGQ29xQS32qHpfuRNRLRgrzu",
+                "account" : "",
+                "scriptPubKey" : "76a9143a8f98bcce6ae64662c08fd953c382629e7258b888ac",
+                "amount" : 0.0087000,
+                "confirmations" : 3313
+            },
+            {
+                "txid" : "38ad633242c7ebd009c8d42ad2753f0bf1ed02411d469cd6fdbd3644ca197d8c",
+                "vout" : 0,
+                "address" : "Xsepg34nzLLAd8KAChhJ9HUXtaxWB2gE4a",
+                "account" : "",
+                "scriptPubKey" : "76a914ba1856c7e4be4ae07024e3deecec91081ea6911788ac",
+                "amount" : 0.00021000,
+                "confirmations" : 3313
+            }
+        ]
