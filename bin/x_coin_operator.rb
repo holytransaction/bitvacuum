@@ -72,6 +72,23 @@ class XCoinOperator
     # TODO: To store results in database. # of inputs, date total amount. Create new table table bitvacuum_run in cryptoserver DB (test and dev)
   end
 
+  def lock_inputs(inputs)
+    puts 'Locking unspent inputs to prevent Automatic Coin Selector to collect them'
+    @connection.lockunspent(inputs)
+  end
+
+  def unlock_inputs(inputs)
+    @connection.unlockunspent(inputs)
+  end
+
+  def create_raw_transaction(inputs, address, amount)
+    transaction_buffer = []
+    inputs.each do |input|
+      transaction_buffer << { :txid => input['txid'], :vout => input['vout']}
+    end
+    @connection.createrawtransaction(transaction_buffer, { "#{address}" => amount })
+  end
+
   def filter_unspent_transactions(inputs, threshold)
     inputs.select { |t| t['amount'] <= threshold }.sort_by! { |t| t['amount'] }
   end
@@ -101,7 +118,7 @@ class XCoinOperator
       else
         buffer.push(inputs.take(1).first)
       end
-      # puts "Now transaction buffer is: #{buffer}"
+      # ap "Now transaction buffer is: #{buffer}"
       printf 'Transaction buffer value is: %f; ', calculate_value_of_inputs(buffer)
       puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
     end
@@ -111,6 +128,10 @@ class XCoinOperator
 
   def get_list_of_locked_inputs
     @connection.listlockunspent
+  end
+
+  def get_new_address
+    @connection.getnewaddress
   end
 
   def inputs_are_locked?(inputs, locked_list)
@@ -126,19 +147,31 @@ class XCoinOperator
       puts "Scanning for unspent transactions for currency: #{currency[:name]}"
       establish_connection(currency)
       unspent = scan_for_unspent_transactions(threshold)
+      if unspent.count < configuration.param['inputs_to_start']
+        puts 'Not enough inputs to start cleaning'
+        return false
+      end
       puts "Found #{unspent.count} unspent inputs."
       operational_inputs = unspent
       transaction_buffer = []
       configuration.param['transactions_to_send'].times do
         unless operational_inputs.nil?
           transaction_buffer = accumulate_inputs(operational_inputs)
-          if transaction_buffer.count > 1 && transaction_buffer & scan_for_unspent_transactions(threshold)
-            # TODO: Lock inputs
-            if inputs_are_locked?(transaction_buffer, get_list_of_locked_inputs)
-              puts 'Create, sign and send transaction' # TODO: Create, sign and send transaction
-              # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
+          if transaction_buffer.count > 1
+            # lock_inputs(transaction_buffer) TODO: Uncomment
+            raw_transaction = create_raw_transaction(transaction_buffer, get_new_address,
+                                                     calculate_value_of_inputs(transaction_buffer))
+            ap "Raw transaction is: #{raw_transaction}"
+            signed_raw_transaction = sign_raw_transaction(raw_transaction)
+            ap "Signed transaction is: #{raw_transaction}"
+            # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
+            if signed_raw_transaction['complete']
+              puts 'Transaction has been signed successfully'
+              #sent_raw_transaction = send_raw_transaction(signed_raw_transaction['hex']) TODO: Uncomment
+              #ap "Sent transaction HEX: #{sent_raw_transaction}" TODO: Uncomment
             else
-              # TODO: Unlock inputs
+              unlock_inputs(transaction_buffer)
+              puts 'Warning: One or several inputs became unspendable, rerunning last iteration...'
               redo
             end
           else
@@ -152,5 +185,13 @@ class XCoinOperator
       end
 
     end
+  end
+
+  def sign_raw_transaction(raw_transaction)
+    @connection.signrawtransaction(raw_transaction)
+  end
+
+  def send_raw_transaction(signed_transaction_hex)
+    @connection.sendrawtrancation(signed_transaction_hex)
   end
 end

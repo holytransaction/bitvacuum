@@ -2,6 +2,7 @@
 require 'gli'
 require 'yaml'
 require_relative 'x_coin_operator'
+require 'awesome_print'
 
 include GLI::App
 
@@ -28,7 +29,7 @@ command :scan do |c|
 
   c.action do |global_options, options, args|
 
-    puts "Running scan with options: #{options}"
+    ap "Running scan with options: #{options}"
     puts '====='
 
     operator.operational_currencies.each do |currency|
@@ -82,7 +83,7 @@ command :run do |c|
       threshold = config['input_value_threshold']
     end
 
-    puts "Running 'run' with options: #{options}"
+    ap "Running 'run' with options: #{options}"
     puts '====='
 
     operator.run_accumulation(threshold)
