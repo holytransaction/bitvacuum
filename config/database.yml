@@ -1,0 +1,19 @@
+development:
+  adapter: mysql2
+  database: holytransaction
+  pool: 5
+  timeout: 5000
+  encoding: utf8
+  username: root
+  password:
+  local_infile: true
+
+test:
+  adapter: mysql2
+  database: holytransaction_test
+  pool: 5
+  timeout: 5000
+  encoding: utf8
+  username: root
+  password:
+  local_infile: true

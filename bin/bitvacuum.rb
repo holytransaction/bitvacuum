@@ -37,7 +37,7 @@ command :scan do |c|
       operator.establish_connection(currency)
       unspent = operator.scan_for_unspent_transactions(options[:threshold])
       puts "Found #{unspent.count} unspent transactions."
-      puts unspent
+      ap unspent
       puts 'Scan successful!'
     end
 

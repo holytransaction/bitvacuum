@@ -2,6 +2,7 @@ require 'singleton'
 require 'bitcoin'
 require_relative 'configuration'
 require 'awesome_print'
+require_relative 'database_operator'
 
 class XCoinOperator
   include Singleton
@@ -68,8 +69,9 @@ class XCoinOperator
       threshold = configuration.param['input_value_threshold']
     end
     unspent = @connection.listunspent
-    filter_unspent_transactions(unspent,threshold)
-    # TODO: To store results in database. # of inputs, date total amount. Create new table table bitvacuum_run in cryptoserver DB (test and dev)
+    filtered = filter_unspent_transactions(unspent,threshold)
+    BitvacuumScan.create(number_of_inputs: filtered.count, total_amount: calculate_value_of_inputs(filtered)).save
+    filtered
   end
 
   def lock_inputs(inputs)
@@ -108,7 +110,7 @@ class XCoinOperator
       if calculate_transaction_size(buffer) > configuration.param['transaction_size']
 
         if inputs.count < 2
-          puts 'Inputs count is less than 2'
+          puts "Remaining inputs for operation count is less than 2. Inputs count: #{inputs.count}"
           return []
         end
 
@@ -116,7 +118,10 @@ class XCoinOperator
         buffer = buffer.drop(2)
         buffer.push(inputs.pop)
       else
-        buffer.push(inputs.take(1).first)
+        input_to_push = inputs.take(1).first
+        inputs = inputs.drop(1)
+        buffer.push(input_to_push)
+
       end
       # ap "Now transaction buffer is: #{buffer}"
       printf 'Transaction buffer value is: %f; ', calculate_value_of_inputs(buffer)
@@ -158,17 +163,21 @@ class XCoinOperator
         unless operational_inputs.nil?
           transaction_buffer = accumulate_inputs(operational_inputs)
           if transaction_buffer.count > 1
-            # lock_inputs(transaction_buffer) TODO: Uncomment
-            raw_transaction = create_raw_transaction(transaction_buffer, get_new_address,
+            lock_inputs(transaction_buffer)
+            address = get_new_address
+            raw_transaction = create_raw_transaction(transaction_buffer, address,
                                                      calculate_value_of_inputs(transaction_buffer))
             ap "Raw transaction is: #{raw_transaction}"
             signed_raw_transaction = sign_raw_transaction(raw_transaction)
             ap "Signed transaction is: #{raw_transaction}"
-            # TODO: To store results in database. # of inputs, total, date, address (refer to cryptoserver) Create new table table bitvacuum_run in cryptoserver DB (test and dev)
             if signed_raw_transaction['complete']
               puts 'Transaction has been signed successfully'
-              #sent_raw_transaction = send_raw_transaction(signed_raw_transaction['hex']) TODO: Uncomment
-              #ap "Sent transaction HEX: #{sent_raw_transaction}" TODO: Uncomment
+              sent_raw_transaction = send_raw_transaction(signed_raw_transaction['hex'])
+              ap "Sent transaction TXID: #{sent_raw_transaction}"
+              BitvacuumRun.create(number_of_inputs: transaction_buffer.count,
+                                   total_amount: calculate_value_of_inputs(transaction_buffer),
+                                   address: address, sent_transaction_id: sent_raw_transaction,
+                                   currency: currency[:name]).save
             else
               unlock_inputs(transaction_buffer)
               puts 'Warning: One or several inputs became unspendable, rerunning last iteration...'
@@ -192,6 +201,6 @@ class XCoinOperator
   end
 
   def send_raw_transaction(signed_transaction_hex)
-    @connection.sendrawtrancation(signed_transaction_hex)
+    @connection.sendrawtransaction(signed_transaction_hex)
   end
 end

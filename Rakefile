@@ -4,6 +4,12 @@ require 'rubygems/package_task'
 require 'rdoc/task'
 require 'cucumber'
 require 'cucumber/rake/task'
+require 'yaml'
+require 'logger'
+require 'active_record'
+require 'standalone_migrations'
+StandaloneMigrations::Tasks.load_tasks
+
 Rake::RDocTask.new do |rd|
   rd.main = "README.rdoc"
   rd.rdoc_files.include("README.rdoc","lib/**/*.rb","bin/**/*")
