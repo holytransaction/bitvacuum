@@ -61,7 +61,7 @@ command :run do |c|
   c.arg_name '[VALUE]'
   c.flag [:n, :transactions_to_send]
 
-  c.desc 'Maximum transaction fee'
+  c.desc 'Maximum transaction fee # Not implemented'
   c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['transaction_fee'] # TODO: To investigate why configuration method cannot be invoked here
   c.arg_name '[VALUE]'
   c.flag [:f, :fee]

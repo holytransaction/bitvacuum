@@ -1,6 +1,13 @@
 = bitvacuum
 
-For more information:
+To run once/start daemon:
+ruby bitvacuumd.rb run/start/stop -- [ARGUMENTS FOR APPLICATIION]
+e.g: ruby bitvacuumd.rb run -- scan -currency DARKCOIN -t 0.01
+
+To stop daemon:
+ruby bitvacuumd.rb stop
+
+For more information about parameters:
 bundle exec bin/bitvacuum --help
 bundle exec bin/bitvacuum scan --help
 bundle exec bin/bitvacuum run --help
