@@ -8,9 +8,9 @@ To stop daemon:
 ruby bitvacuumd.rb stop
 
 For more information about parameters:
-bundle exec bin/bitvacuum --help
-bundle exec bin/bitvacuum scan --help
-bundle exec bin/bitvacuum run --help
+bundle exec bin/bitvacuum.rb --help
+bundle exec bin/bitvacuum.rb scan --help
+bundle exec bin/bitvacuum.rb run --help
 
 :include:bitvacuum.rdoc
 
