@@ -38,3 +38,6 @@ build/
 .rvmrc
 
 /.idea
+/config/application.yml
+/config/database.yml
+/config/wallets.yml
