@@ -43,6 +43,7 @@ GEM
       gherkin (~> 2.12)
       multi_json (>= 1.7.5, < 2.0)
       multi_test (>= 0.1.2)
+    daemons (1.1.9)
     diff-lcs (1.2.5)
     domain_name (0.5.23)
       unf (>= 0.0.5, < 1.0.0)
@@ -117,6 +118,7 @@ DEPENDENCIES
   awesome_print
   bitcoin-client!
   cucumber
+  daemons
   gli
   mocha
   mysql2
