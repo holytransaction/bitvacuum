@@ -3,6 +3,7 @@ require 'gli'
 require 'yaml'
 require_relative 'x_coin_operator'
 require 'awesome_print'
+require 'airbrake'
 
 include GLI::App
 
@@ -80,7 +81,7 @@ command :run do |c|
     if options[:threshold]
       threshold = options[:threshold].to_f
     else
-      threshold = config['input_value_threshold']
+      threshold = operator.configuration.param['input_value_threshold'].to_f
     end
 
     ap "Running 'run' with options: #{options}"
@@ -91,11 +92,11 @@ command :run do |c|
 end
 
 pre do |global, command, options, args|
-  operator.load_currency_configuration options[:currency]
-  ap config['airbrake_key']
   Airbrake.configure do |config|
-    config.api_key = config['input_value_threshold']
+    config.api_key = operator.configuration.param['airbrake_key']
   end
+  @options = options
+  operator.load_currency_configuration options[:currency]
   true
 end
 
@@ -107,7 +108,9 @@ end
 
 on_error do |exception|
   puts "Error occured: #{exception.message}"
-  Airbrake.notify_or_ignore(exception)
+  env_hash = ENV.to_hash
+  env_hash[:command_line_arguments] = @options
+  Airbrake.notify_or_ignore(exception, error_message: "[BitVacuum]: #{exception.message}", cgi_data: env_hash)
 end
 
 def operator
