@@ -92,6 +92,10 @@ end
 
 pre do |global, command, options, args|
   operator.load_currency_configuration options[:currency]
+  ap config['airbrake_key']
+  Airbrake.configure do |config|
+    config.api_key = config['input_value_threshold']
+  end
   true
 end
 
@@ -103,6 +107,7 @@ end
 
 on_error do |exception|
   puts "Error occured: #{exception.message}"
+  Airbrake.notify_or_ignore(exception)
 end
 
 def operator

@@ -1,9 +1,10 @@
 currencies: [darkcoin]
 input_value_threshold: 0.01 # Do not set this bigger then ['minimum_transaction_value']
-inputs_to_start: 1
+inputs_to_start: 10
 minimum_transaction_value: 0.01 # Minimum transaction amount without fee is 0.01 for BTC and Darkcoin;
 #Litecoin: 0.001, Dogecoin: ?, Blackcoin: 0.0001 (with minimum fixed fee of 0.0001 BC)?, Peercoin: ? (with fixed min fee of 0.01 PPC),
 # Mastercoin: Unlimited?, TetherUS: ?
 transaction_size: 1000 # Size is calculated: Number_of_inputs * 180 + Number_of_out * 34 + 10 + Number_of_inputs
 #Maximum for BTC, Darkcoin: 1000, Litecoin: 15000/Minute, Dogecoin: ?, Mastercoin: Unlimited?, TetherUS: ?
 transactions_to_send: 1 # 9999 to clean all wallet from dust
+airbrake_key: YOUR_KEY

@@ -23,7 +23,7 @@ inputs_fulfil: [
                 "address" : "Xsepg34nzLLAd8KAChhJ9HUXtaxWB2gE4a",
                 "account" : "",
                 "scriptPubKey" : "76a914ba1856c7e4be4ae07024e3deecec91081ea6911788ac",
-                "amount" : 0.00021000,
+                "amount" : 0.00081000,
                 "confirmations" : 3313
             },
             {

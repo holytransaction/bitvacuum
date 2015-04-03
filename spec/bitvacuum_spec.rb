@@ -38,7 +38,7 @@ describe 'BitVacuum' do
         to be(939)
 
     expect(XCoinOperator.instance.calculate_value_of_inputs(accumulated)).
-        to be(0.01014006)
+        to be(0.01053021)
   end
   it 'returns empty array if cannot collect enough dust inputs into the fulfilling transaction' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
@@ -59,4 +59,40 @@ describe 'BitVacuum' do
     locked = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_locked'], 0.01)
     expect(XCoinOperator.instance.inputs_are_locked?(unspent,locked)).to be(true)
   end
+  it 'validates inputs before sending to prevent double-spend' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    stub_xcoin_operator(unspent)
+
+    XCoinOperator.instance.stubs(:send_raw_transaction).returns('SENT_RAW_TRANSACTION_HASH_STUB')
+    XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => false).then.returns('complete' => true)
+    XCoinOperator.instance.expects(:unlock_inputs).returns(true)
+    XCoinOperator.instance.run_accumulation(0.01)
+  end
+  it 'sends transaction with accumulated inputs' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    stub_xcoin_operator(unspent)
+
+    XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => true)
+    XCoinOperator.instance.expects(:send_raw_transaction).returns('SENT_RAW_TRANSACTION_HASH_STUB')
+    XCoinOperator.instance.run_accumulation(0.01)
+  end
+end
+
+def stub_xcoin_operator(unspent)
+  XCoinOperator.instance.stubs(:operator).returns(XCoinOperator.instance)
+  XCoinOperator.instance.configuration.stubs(:param).returns({ 'transactions_to_send' => 1, 'inputs_to_start' => 10,
+                                                               'transaction_size' => 1000,
+                                                               'minimum_transaction_value' => 0.01})
+  bitcoin_client = mock()
+  XCoinOperator.instance.stubs(:establish_connection).returns(bitcoin_client)
+  XCoinOperator.instance.stubs(:lock_inputs).returns(true)
+  XCoinOperator.instance.stubs(:get_new_address).returns('NEW_ADDRESS_STUB')
+  XCoinOperator.instance.stubs(:create_raw_transaction).returns('RAW_TRANSACTION_HASH_STUB')
+  XCoinOperator.instance.stubs(:connection).returns(bitcoin_client)
+  operational_currencies = Array.new
+  operational_currencies.push({ :name => 'darkcoin' })
+  XCoinOperator.instance.stubs(:operational_currencies).returns(operational_currencies)
+  XCoinOperator.instance.stubs(:scan_for_unspent_transactions).returns(unspent)
 end

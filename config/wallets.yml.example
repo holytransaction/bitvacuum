@@ -1,0 +1,42 @@
+# Your local wallets config. Localhost is the only case when this app will need to use more than 1 currency at a time
+
+bitcoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+litecoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+peercoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+ripple:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+dogecoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+blackcoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+darkcoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346
+mastercoin:
+  rpc_username: 'UNAME'
+  rpc_password: 'PWD'
+  rpc_host: 'localhost'
+  rpc_port: 12346

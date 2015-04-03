@@ -1,8 +1,9 @@
 = bitvacuum
+Create databases bitvacuum and bitvacuum_test
 
 To run once/start daemon:
 ruby bitvacuumd.rb run/start/stop -- [ARGUMENTS FOR APPLICATIION]
-e.g: ruby bitvacuumd.rb run -- scan -currency DARKCOIN -t 0.01
+e.g: ruby bitvacuumd.rb run -- scan -c DARKCOIN -t 0.01
 
 To stop daemon:
 ruby bitvacuumd.rb stop
