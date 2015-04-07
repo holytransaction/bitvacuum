@@ -1,4 +1,3 @@
-require 'Open3'
 require 'yaml'
 
 class Daemon
