@@ -1,5 +1,8 @@
 = bitvacuum
 Create databases bitvacuum and bitvacuum_test
+On first install:
+rake db:migrate RACK_ENV=test
+rake db:migrate
 
 To run once/start daemon:
 ruby bitvacuumd.rb run/start/stop -- [ARGUMENTS FOR APPLICATIION]
