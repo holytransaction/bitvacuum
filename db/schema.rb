@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150328103341) do
+ActiveRecord::Schema.define(version: 20150409131338) do
 
   create_table "bitvacuum_runs", force: :cascade do |t|
     t.string   "currency",            limit: 255
@@ -26,6 +26,7 @@ ActiveRecord::Schema.define(version: 20150328103341) do
     t.integer  "number_of_inputs", limit: 4
     t.float    "total_amount",     limit: 24
     t.datetime "created_at"
+    t.string   "currency",         limit: 255
   end
 
 end

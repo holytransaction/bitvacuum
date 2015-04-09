@@ -55,6 +55,7 @@ class XCoinOperator
 
   def establish_connection(currency)
     if @connection.nil?
+      @operational_currency_name = currency[:name]
       @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
                                         :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
     else
@@ -70,7 +71,8 @@ class XCoinOperator
     end
     unspent = @connection.listunspent
     filtered = filter_unspent_transactions(unspent,threshold)
-    BitvacuumScan.create(number_of_inputs: filtered.count, total_amount: calculate_value_of_inputs(filtered)).save
+    BitvacuumScan.create(number_of_inputs: filtered.count, total_amount: calculate_value_of_inputs(filtered),
+                         currency: @operational_currency_name).save
     filtered
   end
 
