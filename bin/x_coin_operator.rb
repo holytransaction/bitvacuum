@@ -180,6 +180,7 @@ class XCoinOperator
                                    total_amount: calculate_value_of_inputs(transaction_buffer),
                                    address: address, sent_transaction_id: sent_raw_transaction,
                                    currency: currency[:name]).save
+              unlock_inputs(transaction_buffer)
             else
               unlock_inputs(transaction_buffer)
               puts 'Warning: One or several inputs became unspendable, rerunning last iteration...'
