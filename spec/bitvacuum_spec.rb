@@ -66,7 +66,7 @@ describe 'BitVacuum' do
 
     XCoinOperator.instance.stubs(:send_raw_transaction).returns('SENT_RAW_TRANSACTION_HASH_STUB')
     XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => false).then.returns('complete' => true)
-    XCoinOperator.instance.expects(:unlock_inputs).returns(true)
+    XCoinOperator.instance.expects(:unlock_inputs).twice.returns(true)
     XCoinOperator.instance.run_accumulation(0.01)
   end
   it 'sends transaction with accumulated inputs' do
@@ -75,6 +75,7 @@ describe 'BitVacuum' do
     stub_xcoin_operator(unspent)
 
     XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => true)
+    XCoinOperator.instance.expects(:unlock_inputs).returns(true)
     XCoinOperator.instance.expects(:send_raw_transaction).returns('SENT_RAW_TRANSACTION_HASH_STUB')
     XCoinOperator.instance.run_accumulation(0.01)
   end
