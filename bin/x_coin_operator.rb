@@ -125,7 +125,6 @@ class XCoinOperator
         buffer.push(input_to_push)
 
       end
-      # ap "Now transaction buffer is: #{buffer}"
       printf 'Transaction buffer value is: %f; ', calculate_value_of_inputs(buffer)
       puts "Transaction buffer size is: #{calculate_transaction_size(buffer)}"
     end
@@ -159,9 +158,10 @@ class XCoinOperator
         return false
       end
       puts "Found #{unspent.count} unspent inputs."
-      operational_inputs = unspent
+      operational_inputs = []
       transaction_buffer = []
       configuration.param['transactions_to_send'].times do
+        operational_inputs = scan_for_unspent_transactions(threshold)
         unless operational_inputs.nil?
           transaction_buffer = accumulate_inputs(operational_inputs)
           if transaction_buffer.count > 1
