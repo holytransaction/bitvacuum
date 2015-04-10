@@ -4,7 +4,7 @@ require 'mysql2'
 require 'yaml'
 
 config_file = YAML::load_file(File.join(__dir__, '../config/database.yml'))
-if ENV['RACK_ENV'] == 'test'
+unless ENV['RACK_ENV'] == 'test'
   ActiveRecord::Base.establish_connection config_file['development']
 else
   ActiveRecord::Base.establish_connection config_file['test']
