@@ -79,6 +79,19 @@ describe 'BitVacuum' do
     XCoinOperator.instance.expects(:send_raw_transaction).returns('SENT_RAW_TRANSACTION_HASH_STUB')
     XCoinOperator.instance.run_accumulation(0.01)
   end
+  it 'renews inputs buffer after every transaction created' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
+    stub_xcoin_operator(unspent)
+    XCoinOperator.instance.configuration.stubs(:param).returns({ 'transactions_to_send' => 2, 'inputs_to_start' => 10,
+                                                                 'transaction_size' => 1000,
+                                                                 'minimum_transaction_value' => 0.01})
+    XCoinOperator.instance.expects(:scan_for_unspent_transactions).twice.returns(unspent)
+    XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => true)
+    XCoinOperator.instance.expects(:unlock_inputs).twice.returns(true)
+    XCoinOperator.instance.expects(:send_raw_transaction).twice.returns('SENT_RAW_TRANSACTION_HASH_STUB')
+    XCoinOperator.instance.run_accumulation(0.01)
+  end
 end
 
 def stub_xcoin_operator(unspent)
