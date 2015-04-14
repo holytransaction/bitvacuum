@@ -83,6 +83,9 @@ command :run do |c|
     else
       threshold = operator.configuration.param['input_value_threshold'].to_f
     end
+    if options[:transactions_to_send]
+      operator.configuration.param['transactions_to_send'] = options[:transactions_to_send]
+    end
 
     ap "Running 'run' with options: #{options}"
     puts '====='
