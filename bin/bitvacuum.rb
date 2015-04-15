@@ -62,8 +62,8 @@ command :run do |c|
   c.arg_name '[VALUE]'
   c.flag [:n, :transactions_to_send]
 
-  c.desc 'Maximum transaction fee # Not implemented'
-  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['transaction_fee'] # TODO: To investigate why configuration method cannot be invoked here
+  c.desc 'Transaction fee to pay per 1000 bytes'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['fee'] # TODO: To investigate why configuration method cannot be invoked here
   c.arg_name '[VALUE]'
   c.flag [:f, :fee]
 
@@ -77,6 +77,11 @@ command :run do |c|
   c.arg_name '[VALUE]'
   c.flag [:i, :inputs]
 
+  c.desc 'Minimum transaction value'
+  c.default_value YAML::load_file(File.join(__dir__, '../config/application.yml'))['minimum_transaction_value'] # TODO: To investigate why configuration method cannot be invoked here
+  c.arg_name '[VALUE]'
+  c.flag [:m, :min_transaction_value]
+
   c.action do |global_options, options, args|
     if options[:threshold]
       threshold = options[:threshold].to_f
@@ -84,7 +89,19 @@ command :run do |c|
       threshold = operator.configuration.param['input_value_threshold'].to_f
     end
     if options[:transactions_to_send]
-      operator.configuration.param['transactions_to_send'] = options[:transactions_to_send]
+      operator.configuration.param['transactions_to_send'] = options[:transactions_to_send].to_i
+    end
+    if options[:fee]
+      operator.configuration.param['fee'] = options[:fee].to_f
+    end
+    if options[:size]
+      operator.configuration.param['transaction_size'] = options[:size].to_i
+    end
+    if options[:inputs]
+      operator.configuration.param['inputs_to_start'] = options[:inputs].to_i
+    end
+    if options[:min_transaction_value]
+      operator.configuration.param['minimum_transaction_value'] = options[:min_transaction_value].to_f
     end
 
     ap "Running 'run' with options: #{options}"

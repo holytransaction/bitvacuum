@@ -4,13 +4,19 @@ require 'yaml'
 require 'awesome_print'
 
 describe 'BitVacuum' do
+  before(:each) do
+    XCoinOperator.instance.configuration.stubs(:param).returns({ 'transactions_to_send' => 1, 'inputs_to_start' => 10,
+                                                                 'transaction_size' => 1000,
+                                                                 'minimum_transaction_value' => 0.01, 'fee' => 0.0,
+                                                                 'currencies' => ['darkcoin'] })
+  end
+
   it 'establishes connection with the first XCOIN RPC server from configuration' do
     XCoinOperator.instance.configuration.param['currencies'].first do |currency|
       currency_configuration = XCoinOperator.instance.load_currency_configuration(currency).pop
       expect(XCoinOperator.instance.establish_connection(currency_configuration).getinfo['testnet']).to be(false)
     end
   end
-
   it 'filters inputs with value below threshold' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
     unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
@@ -28,7 +34,7 @@ describe 'BitVacuum' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
     unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_not_fulfil'], 0.01)
     total_amount = XCoinOperator.instance.calculate_value_of_inputs(unspent)
-    expect(total_amount).to be(0.0011200000000000001)
+    expect(total_amount).to be(0.00106)
   end
   it 'accumulates dust inputs into valid free from fees transaction' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
@@ -83,22 +89,23 @@ describe 'BitVacuum' do
     inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
     unspent = XCoinOperator.instance.filter_unspent_transactions(inputs['inputs_fulfil'], 0.01)
     stub_xcoin_operator(unspent)
-    XCoinOperator.instance.configuration.stubs(:param).returns({ 'transactions_to_send' => 2, 'inputs_to_start' => 10,
-                                                                 'transaction_size' => 1000,
-                                                                 'minimum_transaction_value' => 0.01})
+    XCoinOperator.instance.configuration.param['transactions_to_send'] = 2
     XCoinOperator.instance.expects(:scan_for_unspent_transactions).twice.returns(unspent)
     XCoinOperator.instance.stubs(:sign_raw_transaction).returns('complete' => true)
     XCoinOperator.instance.expects(:unlock_inputs).twice.returns(true)
     XCoinOperator.instance.expects(:send_raw_transaction).twice.returns('SENT_RAW_TRANSACTION_HASH_STUB')
     XCoinOperator.instance.run_accumulation(0.01)
   end
+  it 'calculates required fee per 1000 bytes' do
+    inputs = YAML::load(File.open(File.dirname(__FILE__) + '/fixtures/inputs.yml'))
+    XCoinOperator.instance.configuration.stubs(:param).returns({ 'fee' => 0.0001})
+    expect(XCoinOperator.instance.calculate_fee(inputs['inputs_fulfil'])).to be(0.0002568)
+  end
 end
 
 def stub_xcoin_operator(unspent)
   XCoinOperator.instance.stubs(:operator).returns(XCoinOperator.instance)
-  XCoinOperator.instance.configuration.stubs(:param).returns({ 'transactions_to_send' => 1, 'inputs_to_start' => 10,
-                                                               'transaction_size' => 1000,
-                                                               'minimum_transaction_value' => 0.01})
+  XCoinOperator.instance.stubs(:calculate_fee).returns(0)
   bitcoin_client = mock()
   XCoinOperator.instance.stubs(:establish_connection).returns(bitcoin_client)
   XCoinOperator.instance.stubs(:lock_inputs).returns(true)

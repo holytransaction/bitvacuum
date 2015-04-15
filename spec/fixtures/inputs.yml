@@ -138,33 +138,6 @@ inputs_not_fulfil: [
                 "confirmations" : 3312
             },
             {
-                "txid" : "14274182f2d927847106f67a5eb412d0f5170e21c5e0687b479707b942ccf9d9",
-                "vout" : 1,
-                "address" : "Xg2V3eZfW7RGQ29xQS32qHpfuRNRLRgrzu",
-                "account" : "",
-                "scriptPubKey" : "76a9143a8f98bcce6ae64662c08fd953c382629e7258b888ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3313
-            },
-            {
-                "txid" : "38ad633242c7ebd009c8d42ad2753f0bf1ed02411d469cd6fdbd3644ca197d8c",
-                "vout" : 0,
-                "address" : "Xsepg34nzLLAd8KAChhJ9HUXtaxWB2gE4a",
-                "account" : "",
-                "scriptPubKey" : "76a914ba1856c7e4be4ae07024e3deecec91081ea6911788ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3313
-            },
-            {
-                "txid" : "50f8e0d69bde6559945eee19123a94a0da9a56b81109122558822505c9ee10b5",
-                "vout" : 1,
-                "address" : "Xr2At9Ac4gnzysLL8KTbfkDdfaPBGzF5Wt",
-                "account" : "",
-                "scriptPubKey" : "76a914a831b126db770d75e698871096359450e2ba62c388ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3288
-            },
-            {
                 "txid" : "5fc15dca5c15dd834e4ba5eb95c88322f7b53cfcf6a5d2e021c7ffb0c7ac9f30",
                 "vout" : 0,
                 "address" : "Xh9V5qRDmLufJaoqRJncYB7HrXHCVaE9au",
@@ -215,33 +188,6 @@ inputs_not_fulfil: [
                 "address" : "XiUEQXT946VYiTEWBnwjpahF78GaP5egZg",
                 "account" : "",
                 "scriptPubKey" : "76a914555e713b44f2789bbf5d3e080dbb80b601907a7088ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3312
-            },
-            {
-                "txid" : "af37cb5335d8572f9edafc8ee14d4a31ac37f66dbd41a63adf6af0873b017ff6",
-                "vout" : 1,
-                "address" : "Xrg3Whn8SvwuubRNiqoUieuWQWHZ4eRJjU",
-                "account" : "",
-                "scriptPubKey" : "76a914af5b58c1714f4e802eca8d0fbf8f44a1942bac7188ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3311
-            },
-            {
-                "txid" : "b93efd0e792e3e5ae613ffac22b47bf4a57d83d096078b18cf3dc677f88c12bc",
-                "vout" : 0,
-                "address" : "XpLN21pTmUgZtgcWrRAhJSsu5jbYNMDZ3K",
-                "account" : "",
-                "scriptPubKey" : "76a91495b239308fb05e68bebb31f4c51211bf1e6c6b5288ac",
-                "amount" : 0.00001000,
-                "confirmations" : 3311
-            },
-            {
-                "txid" : "bdedeb85bf8b919f6f8ee002cfaaa2f49088e4515ba808cba530929aecf3e5a0",
-                "vout" : 0,
-                "address" : "XfKpxcuL9L8N2kpTFs3hgxMgC3Rd3mMuND",
-                "account" : "",
-                "scriptPubKey" : "76a91432df2a3c4fe8e95cec7c75606db60723fd82ea2288ac",
                 "amount" : 0.00001000,
                 "confirmations" : 3312
             },

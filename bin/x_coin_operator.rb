@@ -94,7 +94,7 @@ class XCoinOperator
   end
 
   def filter_unspent_transactions(inputs, threshold)
-    inputs.select { |t| t['amount'] <= threshold }.sort_by! { |t| t['amount'] }
+    inputs.select { |t| t['amount'] < threshold }.sort_by! { |t| t['amount'] }
   end
 
   def accumulate_inputs(inputs)
@@ -167,8 +167,9 @@ class XCoinOperator
           if transaction_buffer.count > 1
             lock_inputs(transaction_buffer)
             address = get_new_address
+            fee = calculate_fee(transaction_buffer)
             raw_transaction = create_raw_transaction(transaction_buffer, address,
-                                                     calculate_value_of_inputs(transaction_buffer))
+                                                     calculate_value_of_inputs(transaction_buffer) - fee)
             ap "Raw transaction is: #{raw_transaction}"
             signed_raw_transaction = sign_raw_transaction(raw_transaction)
             ap "Signed transaction is: #{raw_transaction}"
@@ -197,6 +198,10 @@ class XCoinOperator
       end
 
     end
+  end
+
+  def calculate_fee(transaction_buffer)
+    calculate_transaction_size(transaction_buffer).to_f / 1000.0 * configuration.param['fee']
   end
 
   def sign_raw_transaction(raw_transaction)
