@@ -57,7 +57,9 @@ class XCoinOperator
     if @connection.nil?
       @operational_currency_name = currency[:name]
       @connection = Bitcoin::Client.new(currency[:config]['rpc_username'], currency[:config]['rpc_password'],
-                                        :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'])
+                                        :host => currency[:config]['rpc_host'], :port => currency[:config]['rpc_port'],
+                                        :open_timeout => currency[:config]['open_timeout'],
+                                        :read_timeout => currency[:config]['read_timeout'])
     else
       @connection
     end

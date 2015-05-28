@@ -1,6 +1,6 @@
 GIT
-  remote: git://github.com/stormcore/bitcoin-client.git
-  revision: 5fbbb3b34c2d8a42a9d4f005392f6d19602b9c9a
+  remote: git://github.com/holytransaction/bitcoin-client.git
+  revision: c36fb305116e84bbaa4d217a336f3a4406058ba2
   specs:
     bitcoin-client (0.0.3)
       rest-client
@@ -48,7 +48,7 @@ GEM
       multi_test (>= 0.1.2)
     daemons (1.1.9)
     diff-lcs (1.2.5)
-    domain_name (0.5.23)
+    domain_name (0.5.24)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
     gherkin (2.12.2)
@@ -61,7 +61,7 @@ GEM
     loofah (2.0.1)
       nokogiri (>= 1.5.9)
     metaclass (0.0.4)
-    mime-types (2.4.3)
+    mime-types (2.6.1)
     mini_portile (0.6.2)
     minitest (5.5.1)
     mocha (1.1.0)
@@ -111,7 +111,7 @@ GEM
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.6)
+    unf_ext (0.0.7.1)
 
 PLATFORMS
   ruby

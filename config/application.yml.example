@@ -10,3 +10,5 @@ transactions_to_send: 1 # 9999 to clean all wallet from dust
 fee: 0.0001 # Fee payed by 1000 bytes
 airbrake_key: YOUR_KEY
 # Note: To send free transactions in most of the XCoins, use transaction_size: 1000, minimum_transaction_value: 0.01 and fee: 0
+open_timeout: 30
+read_timeout: 30
